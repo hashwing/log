@@ -18,7 +18,7 @@ func main(){
         log.Warn(err)
     }
     // 将实例化的 logger 作为全局的logger
-    hLogger.SetHlogger(logger)
+    log.SetHlogger(logger)
 
     // Debug
     log.Debug("This is a debug message")
