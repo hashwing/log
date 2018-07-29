@@ -11,20 +11,28 @@ import (
 
 
 
-// NewBeelog new object beego log
-func NewBeelog(path string,debug,console bool)(Hlog,error){
+// NewBeegolog new object beego log
+func NewBeegoLog(path string,debug,console,separate bool)(Hlog,error){
 
 	bLog:=logs.NewLogger()
-	if path==""{
+	if path!=""{
 		err := os.MkdirAll(filepath.Dir(path), 0664)
 		if err != nil {
 			logs.Error("fail to create log dir")
 			return nil,err
 		}
-		err = bLog.SetLogger(logs.AdapterMultiFile, `{"filename":"`+path+`","separate":["error"]}`)
-		if err != nil {
-			logs.Error("fail to config logrus")
+		if separate{
+			err = bLog.SetLogger(logs.AdapterMultiFile, fmt.Sprintf(`{"filename":"%s","separate":["error"]}`,path))
+			if err != nil {
+				logs.Error("fail to config logrus")
+			}
+		}else{
+			err =bLog.SetLogger(logs.AdapterFile,fmt.Sprintf(`{"filename":"%s"}`,path))
+			if err != nil {
+				logs.Error("fail to config logrus")
+			}
 		}
+		
 	}
 
 	bLog.EnableFuncCallDepth(true)
@@ -52,22 +60,22 @@ type BeegoLog struct {
 
 // Debug log debug
 func (b *BeegoLog)Debug(f interface{},v ...interface{}){
-	b.logger.Debug(formatLog(f,v))
+	b.logger.Debug(formatLog(f,v...))
 }
 
 // Info log info
 func (b *BeegoLog)Info(f interface{},v ...interface{}){
-	b.logger.Info(formatLog(f,v))
+	b.logger.Info(formatLog(f,v...))
 
 }
 
 func (b *BeegoLog)Warn(f interface{},v ...interface{}){
-	b.logger.Warn(formatLog(f,v))
+	b.logger.Warning(formatLog(f,v...))
 }
 
 // Error log error
 func (b *BeegoLog)Error(f interface{},v ...interface{}){
-	b.logger.Error(formatLog(f,v))
+	b.logger.Error(formatLog(f,v...))
 }
 
 
@@ -92,5 +100,6 @@ func formatLog(f interface{}, v ...interface{}) string {
 		}
 		msg += strings.Repeat(" %v", len(v))
 	}
+
 	return fmt.Sprintf(msg, v...)
 }
