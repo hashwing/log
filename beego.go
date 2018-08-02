@@ -11,39 +11,28 @@ import (
 
 
 
-// NewBeegolog new object beego log
-func NewBeegoLog(path string,debug,console,separate bool)(Hlog,error){
-
-	bLog:=logs.NewLogger()
+// NewBeegoLog new object beego log
+func NewBeegoLog(path string,level int,console bool)(Hlog,error){
+	bLog:=logs.GetBeeLogger()
 	if path!=""{
 		err := os.MkdirAll(filepath.Dir(path), 0664)
 		if err != nil {
 			logs.Error("fail to create log dir")
-			return nil,err
 		}
-		if separate{
-			err = bLog.SetLogger(logs.AdapterMultiFile, fmt.Sprintf(`{"filename":"%s","separate":["error"]}`,path))
-			if err != nil {
-				logs.Error("fail to config logrus")
-			}
-		}else{
-			err =bLog.SetLogger(logs.AdapterFile,fmt.Sprintf(`{"filename":"%s"}`,path))
-			if err != nil {
-				logs.Error("fail to config logrus")
-			}
+		logConfig:= fmt.Sprintf(`{"filename":"%s","maxlines":0,"maxsize":0,"daily":true,"maxdays":30}`,path)
+		err = bLog.SetLogger(logs.AdapterFile, logConfig)
+		if err != nil {
+			logs.Error("fail to config logrus")
 		}
-		
 	}
 
 	bLog.EnableFuncCallDepth(true)
 	bLog.SetLogFuncCallDepth(4)
-	if debug{
-		bLog.SetLevel(logs.LevelDebug)
-	}else{
-		logs.SetLevel(logs.LevelInfo)
-	}
+	bLog.SetLevel(level)
 	if console{
-		bLog.SetLogger("console")
+		bLog.SetLogger(logs.AdapterConsole)
+	}else{
+		bLog.DelLogger(logs.AdapterConsole)
 	}
 	return &BeegoLog{logger:bLog},nil
 }

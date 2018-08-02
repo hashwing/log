@@ -11,7 +11,7 @@ type Hlog interface {
 var globalLog Hlog
 
 func init(){
-	globalLog,_=NewBeegoLog("",true,true,false)
+	globalLog,_=NewBeegoLog("",7,true)
 }
 
 // SetHlogger reg a logger in global
