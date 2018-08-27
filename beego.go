@@ -17,7 +17,7 @@ func NewBeegoLog(path string,level int,console bool)(Hlog,error){
 	if path!=""{
 		err := os.MkdirAll(filepath.Dir(path), 0664)
 		if err != nil {
-			logs.Error("fail to create log dir")
+			logs.Error("fail to create log dir %v",err)
 		}
 		logConfig:= fmt.Sprintf(`{"filename":"%s","maxlines":0,"maxsize":0,"daily":true,"maxdays":30}`,path)
 		err = bLog.SetLogger(logs.AdapterFile, logConfig)
